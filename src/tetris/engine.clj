@@ -1,4 +1,4 @@
-(ns tetris.core
+(ns tetris.engine
   (:require [clojure.set :as set]))
 
 (def tetronimos
