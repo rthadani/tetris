@@ -97,6 +97,14 @@
               locked-pieces))
           locked
           board-coords))
+
+(defn maybe-reset?
+  [{:keys [block-pile] :as state}]
+  (let [smallest-y (->> (map first block-pile) (apply min))]
+    (if (zero? smallest-y)
+      (assoc state :block-pile #{})
+      state)))
+
 (defn drop
   [state]
   (let [new-state (update-in state [:tetronimo-position 1] inc)]
@@ -105,9 +113,12 @@
       (let [pos (into #{} (coords-tetronimo (:tetronimo state) (:tetronimo-position state)))]
         (-> (assoc state :tetronimo ((rand-nth (keys tetronimos)) tetronimos))
             (assoc :tetronimo-position [(rand-int (- (board-width (:board-cords state)) 4)) 0])
-            (assoc :block-pile (clear-lines (set/union pos (:block-pile state)) (:board-cords state))))))))
+            (assoc :block-pile (clear-lines (set/union pos (:block-pile state)) (:board-cords state)))
+            (maybe-reset?))))))
+
 
 (defn drop-fast
   [{:keys [locked] :as state}]
   (some #(when (not= locked (:locked %)) %)
         (iterate drop state)))
+
